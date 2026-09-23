@@ -1,12 +1,13 @@
-const path = require("path");
+const fs = require("node:fs");
+const interfaces = require("node:os").networkInterfaces();
+const path = require("node:path");
+const merge = require("lodash").merge;
 const defines = require(process.argv[2]);
+
 // change to debugging if using vscode debugger
 const debugging = false;
-const merge = require("lodash").merge;
 
-const interfaces = require("os").networkInterfaces();
 let save_jsonform_info = false;
-const fs = require("fs");
 let debug = false;
 let save_module_form = "";
 const using_overrides = true;
