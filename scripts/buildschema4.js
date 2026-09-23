@@ -21,7 +21,7 @@ if(debug )
 if (process.argv.length > 3 && process.argv[3] === "saveform") {
   console.log("save form")
   save_jsonform_info = true;
-  if (process.argv.length > 4) { 
+  if (process.argv.length > 4) {
     if(debug ){
       console.log("setting saveform="+process.argv[4])
     }
@@ -141,7 +141,7 @@ const form_code_block = {
 };
 // turn off multi-instance
 let v4_active = false;
-// is there a list of modules that supports multi-instance 
+// is there a list of modules that supports multi-instance
 if (fs.existsSync(path.join(__dirname, "../modules_list.txt"))) {
   // turn on multi-instance
   v4_active = true;
@@ -250,7 +250,7 @@ if (fs.existsSync(path.join(__dirname, "editorinfo.json"))) {
   });
 }
 //
-//	get the network interfaces for the address box dropdown
+//  get the network interfaces for the address box dropdown
 //
 for (let interface of Object.keys(interfaces)) {
   for (let info in interfaces[interface]) {
@@ -341,7 +341,7 @@ let module_enabled_color = getColor(cssfile, "module_enabled");
 let module_disabled_color = getColor(cssfile, "module_disabled");
 
 //
-//	form templates
+//  form templates
 //
 const module_form_template = {
   type: "fieldset",
@@ -365,7 +365,7 @@ var array_item_template = {
 };
 
 //
-//	end of form templates
+//  end of form templates
 //
 
 // variables used to store content
@@ -391,7 +391,7 @@ let results = [];
 // and a prototype data item in the value section that looks like the define
 
 //
-//	copy the info from config.js before the modules list
+//  copy the info from config.js before the modules list
 //
 copyConfig(defines, schema, form);
 
@@ -400,7 +400,7 @@ if(debug){
 }
 
 //
-//	loop thru the modules in the defaults collection list
+//  loop thru the modules in the defaults collection list
 //  and process as 'modules', build what they might 'look like'
 //  what they ARE in config.js added later
 //
@@ -456,7 +456,7 @@ Object.keys(defines.defined_config).forEach((module_definition) => {
   // if it exists
   let fn = check_for_module_file(module_name, 'schema');
   if (debug) console.log("looking for module's schema file=" + fn);
-  //if we found a module schema file 
+  // if we found a module schema file
   if (true && fn !== null && (save_module_form !=module_name)) {
     // set flag we found something
     moduleIndex[module_name] = 0;
@@ -538,7 +538,7 @@ Object.keys(defines.defined_config).forEach((module_definition) => {
       temp_value[module_name] = fixVariableNames(jsonform_info.value);
       temp_value[module_name] = process_config_values(temp_value[module_name])
       if(debug)
-        console.log("post processed config for module = "+module_name+"="+JSON.stringify(temp_value[module_name],null,2)) 
+        console.log("post processed config for module = "+module_name+"="+JSON.stringify(temp_value[module_name],null,2))
       let mform = clone(module_form_template);
       mform.title = module_name;
       mform.htmlClass += module_name
@@ -818,21 +818,21 @@ for (let m of defines.config.modules) {
         // set it
         tt.label = "instance " + (tt.index + 1);
       // add it to the arra for this module
-      if(debug) 
+      if(debug)
        console.log("adding module defaults to value, module="+m.module)
       //value[m.module].push(clone(tt));
       value[m.module].push(process_config_values(clone(tt)))
       if(debug)
         console.log("after push="+JSON.stringify(value[m.module],null,2))
       //value[m.module].pop()
-      //value[m.module].push(v)   
+      //value[m.module].push(v)
     }
     // set its singular value
     else {
-      if(debug) 
+      if(debug)
         console.log("setting module defaults to value, module="+m.module)
-      value[m.module] = process_config_values(clone(tt)) 
-    } 
+      value[m.module] = process_config_values(clone(tt))
+    }
   } else {
     // shouldn't be able to get here
     // as all modules installed  were processed
@@ -892,7 +892,7 @@ Object.keys(temp_value).forEach((unused_module) => {
   }
 });
 
-// if we have multiple instances of a module, 
+// if we have multiple instances of a module,
 // sort them in the array by instance number
 //
 Object.keys(value).forEach((item) => {
@@ -1009,7 +1009,7 @@ value["positions"] = positions;
 
 //
 // loop thru all the module values
-// find their array variables that might end up empty on form submit 
+// find their array variables that might end up empty on form submit
 // (cause the browser doesn't return empty arrays)
 // this could create entries in the object_form list processed next
 //
@@ -1689,7 +1689,7 @@ function find_empty_arrays(obj, stack, hash) {
         }
 
       }
-      //	}
+      //  }
     } else {
       if (obj) {
         if (debug)
@@ -1713,11 +1713,11 @@ function mergeMissingConfigProperty(target, source) {
   // Loop through all keys in the source object
   for (const key in source) {
     if (source.hasOwnProperty(key)) {
-      
+
       // Case 1: Key doesn't exist in target at all -> copy it directly
       if (!(key in target)) {
         target[key] = source[key];
-      } 
+      }
     }
   }
   return target;
@@ -1749,7 +1749,7 @@ function copyConfig(defines, schema, form) {
     if (t === "object") {
       if(debug)
         console.log("checking type is array for "+setting+" "+Array.isArray(base_variables[setting])+'='+JSON.stringify(base_variables,null,2))
-    
+
       if (Array.isArray(base_variables[setting])) {
         if (setting === "logLevel") {
           t = "string";
@@ -1778,7 +1778,7 @@ function copyConfig(defines, schema, form) {
           }
           schema["config"]["properties"][setting] = {
             type: t,
-            title: setting,            
+            title: setting,
             items: { type: dtype }
           };
         }
@@ -1843,15 +1843,15 @@ function copyConfig(defines, schema, form) {
         case "cors":
           as = {
             type: "string",
-            title: setting,            
+            title: setting,
             enum: [ "disabled", "allowAll", "allowWhitelist"],
-          }  
+          }
           break;
-        case "corsDomainWhitelist":  
+        case "corsDomainWhitelist":
           as = {
             type: "array",
             title: setting
-          } 
+          }
           break;
         case "logLevel":
           as = {
@@ -1878,12 +1878,12 @@ function copyConfig(defines, schema, form) {
               "items": {
                 "type": "string"
               }
-            } 
-          break;       
+            }
+          break;
           case "ignoreContentSecurityPolicy":
           case "ignoreXOriginHeader":
           case "useHttps":
-          case "reloadAfterServerRestart":  
+          case "reloadAfterServerRestart":
             as = {
               type: "boolean",
               title: setting
@@ -1892,17 +1892,17 @@ function copyConfig(defines, schema, form) {
           case "basePath":
           case "tls":
           case "customCss":
-          case "foreignModulesDir":     
+          case "foreignModulesDir":
           case "hideConfigSecrets":
           case "httpHeaders":
           case "httpsCertificate":
           case "httpsPrivateKey":
-          case "defaultModulesDir":  
+          case "defaultModulesDir":
             as = {
               type: "string",
               title: setting
             }
-            break;  
+            break;
         default:
           if(debug)
             console.log("unknown base config variable ="+setting+" type="+t)
@@ -1915,7 +1915,7 @@ function copyConfig(defines, schema, form) {
           if(debug)
             console.log("setting electronswitches form to ",electron_switches_template.form[0])
           form[0].items[0].items.push(clone(electron_switches_template.form[0]))
-        } 
+        }
         else if(setting === "corsDomainWhitelist"){
           form[0].items[0].items.push({
             type: "array",
@@ -1990,7 +1990,7 @@ function copyConfig(defines, schema, form) {
         } else if(setting === "cors"){
           form[0].items[0].items.push({
             key: "config." + setting,
-            "htmlClass":"corsType", 
+            "htmlClass":"corsType",
             "onChange": "(evt,node)=>{let value=evt.target.value;var parentElement=$(evt.target).closest('fieldset'); let element=parentElement.find('.corsDomainList'); element.css('display',value=='allowWhitelist'?'block':'none')}"
           });
         } else {
@@ -2023,8 +2023,8 @@ function getType(value, property, wasObject) {
           type = "string";
         } else if (Array.isArray(value)) {
           type = "array";
-          //	} else if("{}" === JSON.stringify(value)){
-          //		type ='pair'
+          //  } else if("{}" === JSON.stringify(value)){
+          //    type ='pair'
         }
         break;
 
@@ -2039,7 +2039,7 @@ function getType(value, property, wasObject) {
 }
 
 //
-//	process a module
+//  process a module
 //
 function processModule(schema, form, value, module_defines, module_name) {
   let stack = [];
@@ -2088,7 +2088,7 @@ function processModule(schema, form, value, module_defines, module_name) {
       classes: { type: "string", title: "classes", default: "" },
       header: { type: "string", title: "header", default: "" },
       hiddenOnStartup: { type: "boolean", title: "hiddenOnStartup", default: false },
-      configDeepMerge: { type: "boolean", title: "configDeepMerge", default: false },       
+      configDeepMerge: { type: "boolean", title: "configDeepMerge", default: false },
       order: { type: "string", title: "order", default: "*" },
       inconfig: { type: "string", title: "inconfig", default: "0" },
       index: { type: "integer" },
@@ -2215,7 +2215,7 @@ function processModule(schema, form, value, module_defines, module_name) {
     console.log("ptr="+ptr)
 
   //
-  //	loop thru each property from the defaults
+  //  loop thru each property from the defaults
   //
   Object.keys(module_defines).forEach((propertyName) => {
     if (debug) console.log("processing for each property " + propertyName);
@@ -2260,7 +2260,7 @@ function processModule(schema, form, value, module_defines, module_name) {
       stack.push(schema_value);
     else stack.push('"' + propertyName + '":{' + schema_value + "}");
     //
-    //	if a form element was returned
+    //  if a form element was returned
     //
     if (r.mform) {
       if (debug)
@@ -2305,7 +2305,7 @@ function processModule(schema, form, value, module_defines, module_name) {
   //  save the constructed form definition for the properties
   //
   writeJsonFormInfoFile(module_name, prefix, module_form_items, temp_value);
-    if(debug) 
+    if(debug)
       console.log("after write check, module values="+JSON.stringify(temp_value[module_name], null,2))
     temp_value[module_name] = process_config_values(temp_value[module_name])
 
@@ -2356,17 +2356,17 @@ function process_config_values(moduleValues){
   const module_values = clone(moduleValues)
 
   Object.keys(module_values.config).forEach(p => {
-	if(typeof  module_values.config[p] === "string"){
-	    if(debug)
-	      console.log("processing for config parm "+p+ " of module "+module_values.module);
-	    if(module_values.config[p].startsWith("---!config.")){
-	      if(debug)
-	        console.log("we found a config parameter copy module for module="+module_values.module+" parameter "+p)
-	      let item=module_values.config[p].split('.')[1]
-	      if(debug)
-	         console.log("using current config value  for parm="+item+" value="+defines.config[item]);
-	      module_values.config[p]=defines.config[item]
-	    }
+    if(typeof  module_values.config[p] === "string"){
+      if(debug)
+        console.log("processing for config parm "+p+ " of module "+module_values.module);
+      if(module_values.config[p].startsWith("---!config.")){
+        if(debug)
+          console.log("we found a config parameter copy module for module="+module_values.module+" parameter "+p)
+        let item=module_values.config[p].split('.')[1]
+        if(debug)
+          console.log("using current config value  for parm="+item+" value="+defines.config[item]);
+        module_values.config[p]=defines.config[item]
+      }
     }
   })
   if(debug)
@@ -2381,7 +2381,7 @@ function process_config_values1(module_name,values, index=-1){
   }
   let t_value=clone(handle_array?values[module_name][index]:values[module_name])
   let changed=false;
-  if(debug) 
+  if(debug)
     console.log("module values="+JSON.stringify(t_value,null,2));
   Object.keys(t_value.config).forEach(p => {
     if(typeof  t_value.config[p] === "string"){
@@ -2402,7 +2402,7 @@ function process_config_values1(module_name,values, index=-1){
          values[module_name][index]=t_value
        else
        values[module_name]=t_value
-    }	
+    }
   })
 }
 
@@ -2639,7 +2639,7 @@ function processObject(m, p, v, mform, checkPair, recursive, wasObject) {
 }
 
 //
-//	process array object []
+//  process array object []
 //  contains a list of some type properties, string, int, Object!
 //
 function processArray(m, p, v, mform, checkPair, recursive, wasObject) {
@@ -2700,7 +2700,7 @@ function processArray(m, p, v, mform, checkPair, recursive, wasObject) {
     };
   } else {
     if(debug)
-    	console.log("array, pair is false")
+      console.log("array, pair is false")
     let mparts=m.split('.')
     usage_defined=module_variable_usage[mparts[0]]
     if(usage_defined && usage_defined[p]){
@@ -2736,8 +2736,8 @@ function processArray(m, p, v, mform, checkPair, recursive, wasObject) {
               mform: vform,
               results:
                 /*'"' + trimit(p) + '":"'+*/JSON.stringify(v).slice(1,-1)
-  	    };
-	}
+            };
+        }
       }
     }
   }
@@ -3078,7 +3078,7 @@ function checkForPair(data,module_name,variable_name) {
   }
   catch{}
   if (Array.isArray(data)) {
-    if(debug) 
+    if(debug)
       console.log("pair detected array, length= "+data.length)
     // loop thru the elements
     if (data.length) {
@@ -3091,7 +3091,7 @@ function checkForPair(data,module_name,variable_name) {
         } // can't be a pair
         else {
           if(debug)
-            console.log("pair detected NOT object in array, can't be pair", data[i])          
+            console.log("pair detected NOT object in array, can't be pair", data[i])
           return false;
         }
       }
