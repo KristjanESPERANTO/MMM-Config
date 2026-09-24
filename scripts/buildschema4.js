@@ -4,6 +4,71 @@ const path = require("node:path");
 const merge = require("lodash").merge;
 const defines = require(process.argv[2]);
 
+/**
+ * Finds and loads the first available animation module.
+ */
+async function findAnimationModule(animationFiles) {
+  for (const { source, filename } of animationFiles) {
+    try {
+      const moduleSource = fs.readFileSync(filename, "utf8");
+      if (/^\s*export\s/m.test(moduleSource)) {
+        // MagicMirror 2.38.0 and newer expose animateCSS as an ES module.
+        const moduleUrl = `data:text/javascript;base64,${Buffer.from(moduleSource).toString("base64")}`;
+        return { source, module: await import(moduleUrl) };
+      }
+      // MagicMirror versions before 2.38.0 expose animateCSS as CommonJS.
+      return { source, module: require(filename) };
+    } catch (error) {
+      if (error.code !== "ENOENT")
+        throw error;
+    }
+  }
+  return null;
+}
+
+/**
+ * Loads the available animation names for the form.
+ */
+async function loadAnimationNames(animationFiles, debug) {
+  if (debug)
+    console.log("checking on animations file");
+
+  const animationResult = await findAnimationModule(animationFiles);
+  const animateIn = Array.isArray(animationResult?.module?.AnimateCSSIn)
+    ? animationResult.module.AnimateCSSIn
+    : [];
+  const animateOut = Array.isArray(animationResult?.module?.AnimateCSSOut)
+    ? animationResult.module.AnimateCSSOut
+    : [];
+  const animations = {
+    animateIn: ["None", ...animateIn],
+    animateOut: ["None", ...animateOut]
+  };
+
+  if (animationResult && debug)
+    console.log(animationResult.source + " animations present");
+
+  if (debug) {
+    console.log(
+      "animation names in=" +
+        animations.animateIn +
+        "\n out=" +
+        animations.animateOut +
+        " module=",
+      animations
+    );
+  }
+
+  return {
+    ...animations,
+    present: Boolean(animationResult)
+  };
+}
+
+/**
+ * Builds the schema, form, and values used by MMM-Config.
+ */
+async function buildSchema() {
 // change to debugging if using vscode debugger
 const debugging = false;
 
@@ -184,35 +249,17 @@ if (debug)
     "default modules list=" + JSON.stringify(defaultModules, null, 2)
   );
 
-let x = {AnimateCSSIn:[],AnimateCSSOut:[]}
-let animations_present = false;
-const animationNames = x
-if(debug)
-  console.log("checking on animations file")
-try {
-  x= require(__dirname+"/../animateCSS.js");
-  animations_present = true;
-   if(debug)
-   console.log("local animations present")
-}
-catch(error){
- try {
-   x = require("../../../js/animateCSS.js");
-   animations_present = true;
-   if(debug)
-     console.log("base animations present")
- }
- catch(error){}
-}
-finally {
-  animationNames.AnimateCSSIn = clone(x.AnimateCSSIn) //.splice(0,0,"None")
-  animationNames.AnimateCSSIn.splice(0,0,"None")
-  animationNames.AnimateCSSOut = clone(x.AnimateCSSOut) //.splice(0,0,"None")
-  animationNames.AnimateCSSOut.splice(0,0,"None")
-  if(debug){
-    console.log("animation names in="+animationNames.AnimateCSSIn+"\n out="+animationNames.AnimateCSSOut +" x=",x)
+const animationFiles = [
+  {
+    source: "local",
+    filename: path.join(__dirname, "../animateCSS.js")
+  },
+  {
+    source: "base",
+    filename: path.join(__dirname, "../../../js/animateCSS.js")
   }
-}
+];
+const animations = await loadAnimationNames(animationFiles, debug);
 
 //
 //  lets auto detect multiple instances of the same module
@@ -330,7 +377,8 @@ try {
   module_positions= JSON.parse(mp.split('=')[1])
   module_positions.unshift('none')
 } catch(error){
-
+  if (debug)
+    console.log("positions.js not available: " + error.message);
 }
 //
 //  find the color to be used for enabled/disabled and save for the onclick handler
@@ -795,7 +843,7 @@ for (let m of defines.config.modules) {
     // watch out for spaces in position names
     // old habits
     tt.position = tt.position.replace(" ", "_");
-    if(animations_present){
+    if(animations.present){
       // if no animateIn set
       if (tt.animateIn === undefined) {
         // force to a known value, none isn't used
@@ -1320,9 +1368,10 @@ while ((index = str.indexOf('".', start)) !== -1) {
 }
 // restore the value section with modifications
 value = JSON.parse(str, fromhandler);
-value["animationNames"]={}
-value.animationNames['animateIn']=animationNames.AnimateCSSIn
-value.animationNames['animateOut']=animationNames.AnimateCSSOut
+value.animationNames = {
+  animateIn: animations.animateIn,
+  animateOut: animations.animateOut
+};
 //
 // OK, now done building
 // create the big object that we will emit
@@ -1347,7 +1396,7 @@ let combined = {
   mangled_names: mangled_names,
   convertedObjects: convertedObjects,
   scriptConvertedObjects: scriptConvertedObjects,
-  //tpldata: { animationNames:{animateIn:animationNames.AnimateCSSIn,animateOut:animationNames.AnimateCSSOut}}
+  //tpldata: { animationNames: animations }
 
 };
 
@@ -2057,7 +2106,7 @@ function processModule(schema, form, value, module_defines, module_name) {
     config: module_defines
   };
 
-  if(animations_present){
+  if(animations.present){
     temp_value[module_name].animateIn="none"
     temp_value[module_name].animateOut="none"
   }
@@ -2098,9 +2147,9 @@ function processModule(schema, form, value, module_defines, module_name) {
       config: { type: "object", title: "config", properties: {} }
     }
   };
-  if(animations_present==true){
-      prefix.properties.animateIn = { type:"string", enum:animationNames.AnimateCSSIn}
-      prefix.properties.animateOut = { type:"string", enum:animationNames.AnimateCSSOut}
+  if(animations.present){
+      prefix.properties.animateIn = { type:"string", enum:animations.animateIn}
+      prefix.properties.animateOut = { type:"string", enum:animations.animateOut}
   }
 
   //
@@ -2152,7 +2201,7 @@ function processModule(schema, form, value, module_defines, module_name) {
     type: "hidden"
   });
 
-  if(animations_present){
+  if(animations.present){
     module_form_items.push({
       key: module_name + "." + "animateIn",
       "title":"animateIn",
@@ -2879,7 +2928,10 @@ function processString(m, p, v, mform, checkPair, recursive, wasObject) {
       x = JSON.stringify(usage_defined[p]).slice(1,-1)
     }
   }
-  catch{}
+  catch(error){
+    if (debug)
+      console.log("could not read module override: " + error.message);
+  }
   return { mform: mform, results: x };
 }
 function processTextarea(m, p, v, mform, checkPair, recursive, wasObject) {
@@ -3077,7 +3129,10 @@ function checkForPair(data,module_name,variable_name) {
       }
     }
   }
-  catch{}
+  catch(error){
+    if (debug)
+      console.log("could not read pair override: " + error.message);
+  }
   if (Array.isArray(data)) {
     if(debug)
       console.log("pair detected array, length= "+data.length)
@@ -3145,3 +3200,15 @@ function checkForPair(data,module_name,variable_name) {
       console.log("pair returning ", result)
   return result;
 }
+
+}
+
+/**
+ * Reports a schema build error and marks the process as failed.
+ */
+function handleBuildSchemaError(error) {
+  console.error(error);
+  process.exitCode = 1;
+}
+
+buildSchema().catch(handleBuildSchemaError);
